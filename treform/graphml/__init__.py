@@ -24,21 +24,21 @@ class GraphMLCreator:
         for pair in co_occurrence:
             node1 = ''
             node2 = ''
-            for inner_pair in pair:
+            #for inner_pair in pair:
 
-                if type(inner_pair) is tuple:
-                    node1 = inner_pair[0]
-                    node2 = inner_pair[1]
-                elif type(inner_pair) is str:
-                    inner_pair=inner_pair.split()
-                    node1 = inner_pair[0]
-                    node2 = inner_pair[1]
-                elif type(inner_pair) is int:
-                    #print ("X " + node1 + " == " + node2 + " == " + str(inner_pair) + " : " + str(tuple[node1]))
-                    G.add_edge(node1, node2, weight=float(inner_pair))
-                elif type(inner_pair) is float:
-                    #print ("X " + node1 + " == " + node2 + " == " + str(inner_pair) + " : ")
-                    G.add_edge(node1, node2, weight=float(inner_pair))
+            if type(pair) is tuple:
+                node1 = pair[0]
+                node2 = pair[1]
+            elif type(pair) is str:
+                pair=pair.split()
+                node1 = pair[0]
+                node2 = pair[1]
+            elif type(pair) is int:
+                #print ("X " + node1 + " == " + node2 + " == " + str(inner_pair) + " : " + str(tuple[node1]))
+                G.add_edge(node1, node2, weight=float(pair))
+            elif type(pair) is float:
+                #print ("X " + node1 + " == " + node2 + " == " + str(inner_pair) + " : ")
+                G.add_edge(node1, node2, weight=float(pair))
 
         self.G = G
         print(self.G.number_of_nodes())
@@ -143,8 +143,8 @@ class GraphMLCreator:
         return layout
 
     def plot_graph(self, title=None, file='graph.png'):
-        from matplotlib.font_manager import _rebuild
-        _rebuild()
+        #from matplotlib.font_manager import _rebuild
+        #_rebuild()
 
         font_path = ''
         if platform.system() is 'Windows':

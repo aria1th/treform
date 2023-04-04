@@ -15,6 +15,7 @@ class TextRankExtractor(BaseKeywordExtraction):
         self.max=max
         self.combined_keywords = combined_keywords
     def __call__(self, *args, **kwargs):
+        self.OUT_TYPE = [list, str]
         import nltk.tokenize
         sents = nltk.tokenize.sent_tokenize(*args)
         for sent in sents:

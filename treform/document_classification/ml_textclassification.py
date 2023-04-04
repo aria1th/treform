@@ -10,8 +10,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.svm import LinearSVC, SVC
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
@@ -20,6 +20,8 @@ from joblib import dump, load
 from sklearn.neighbors import KNeighborsClassifier
 
 import sklearn
+from sklearn.tree import DecisionTreeClassifier
+
 
 class documentClassifier:
     def __init__(self):
@@ -37,7 +39,7 @@ class documentClassifier:
         self.labels=None
         self.class_number=0
 
-    def preprocess(self, documents, class_list):
+    def preprocess(self, documents, class_list, id_category_json=''):
 
         #1. we assume that pyTextMiner pre-processing module was applied to the list of documents
         print(str(len(documents)) + " : " + str(len(class_list)))
@@ -60,7 +62,7 @@ class documentClassifier:
         self.id_to_category = dict(self.category_id_df[['category_id', 'label']].values)
 
         # To save the dictionary into a file:
-        json.dump(self.id_to_category, open("./model/id_to_category.json", 'w'))
+        json.dump(self.id_to_category, open(id_category_json, 'w', encoding='utf-8'))
 
         print(self.df.head())
 
@@ -101,13 +103,18 @@ class documentClassifier:
         # (Multinomial) Naive Bayes
         # Linear Support Vector Machine
         # Random Forest
+        # DecisionTree
+        # AdaBoostClassifier
+        # etc...
         models = [
             RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0),
             LinearSVC(),
             MultinomialNB(),
             LogisticRegression(random_state=0),
             KNeighborsClassifier(n_neighbors=10, weights='uniform', algorithm='auto', leaf_size=30, p=2, metric='minkowski', metric_params=None, n_jobs=None),
-            SGDClassifier(loss='hinge', penalty='l2', alpha=0.0001)
+            SGDClassifier(loss='hinge', penalty='l2', alpha=0.0001),
+            DecisionTreeClassifier(),
+            AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), algorithm="SAMME", n_estimators=200),
         ]
 
         CV = 5
@@ -166,15 +173,8 @@ class documentClassifier:
         # Again, we use the chi-squared test to find the terms that are the most correlated with each of the categories:
         model.fit(self.features, self.labels)
         N = 2
-        if 'kneighbors' not in model.__class__.__name__.lower():
-            for label, category_id in sorted(self.category_to_id.items()):
-                indices = np.argsort(model.coef_[category_id])
-                feature_names = np.array(self.tfidf.get_feature_names())[indices]
-                unigrams = [v for v in reversed(feature_names) if len(v.split(' ')) == 1][:N]
-                bigrams = [v for v in reversed(feature_names) if len(v.split(' ')) == 2][:N]
-                print("# '{}':".format(label))
-                print("  . Top unigrams:\n       . {}".format('\n       . '.join(unigrams)))
-                print("  . Top bigrams:\n       . {}".format('\n       . '.join(bigrams)))
+
+        #print(model.__class__.__name__.lower())
 
 
 
@@ -194,13 +194,13 @@ class documentClassifier:
     def loadVectorizer(self, model_name='vectorizer.model'):
         return load(model_name)
 
-    def predict(self, model, vectorizer_model):
+    def predict(self, model, vectorizer_model, id_category_json=''):
         #7. prediction
         docs = ["한국 경제 글로벌 위기 수요 위축 시장 경제 붕귀 자동차 수출 빨간불 내수 촉진 증진 방향성 제고",
                 "밝기 5등급 정도 도심 밖 맨눈 충분히 관측 가능 새해 미국인 8월 행운 기대",
                 "최순실 민간인 국정농단 의혹 사건 진상규명 국정조사 특별위원회 1차 청문회 이재용 삼성전자 부회장 재벌 총수 9명 증인 출석"]
 
-        with open("./model/id_to_category.json") as handle:
+        with open(id_category_json, 'r', encoding='utf-8') as handle:
             id_to_category = json.loads(handle.read())
 
         text_features = vectorizer_model.transform(docs)
@@ -210,9 +210,9 @@ class documentClassifier:
             print("  - Predicted as: '{}'".format(id_to_category[str(predicted)]))
             print("")
 
-    def predict_realtime(self, model, vectorizer_model, docs):
+    def predict_realtime(self, model, vectorizer_model, docs, id_category_json=''):
 
-        with open("./model/id_to_category.json") as handle:
+        with open(id_category_json, 'r', encoding='utf-8') as handle:
             id_to_category = json.loads(handle.read())
 
         text_features = vectorizer_model.transform(docs)

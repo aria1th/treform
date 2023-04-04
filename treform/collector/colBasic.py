@@ -1,3 +1,6 @@
+import requests
+
+
 class ColBasic:
     def __init__(self):
         self.userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0'
@@ -32,12 +35,15 @@ class ColBasic:
     def fetchList(self, page, query, d):
         import urllib.parse, urllib.request, bs4
         data = urllib.parse.urlencode(self.makeParameter(page, query, d))
-        req = urllib.request.Request(self.getSearchURL() + '?' + data)
-        req.add_header('Referer', self.getSearchURL())
-        req.add_header('User-Agent', self.userAgent)
-        f = urllib.request.urlopen(req)
-        cont = f.read().decode('utf-8')
-        soup = bs4.BeautifulSoup(cont, "lxml")
+        #req = urllib.request.Request(self.getSearchURL() + '?' + data)
+        header = {'Referer' : self.getSearchURL(),
+                   'User-Agent' : self.userAgent}
+
+        page = requests.get(self.getSearchURL() + '?' + data, headers=header)
+        page.encoding = 'utf-8'
+        if page.status_code == 200:
+            soup = bs4.BeautifulSoup(page.content, "lxml")
+
         return self.selectList(soup)
 
     @staticmethod
@@ -71,9 +77,11 @@ class ColBasic:
             page = 1
         d = self.initParameter(params)
         output = open(outputPath, 'w', encoding='utf-8')
+        print(d)
         try:
             while 1:
                 urls = self.fetchList(page, query, d)
+                print(urls[0])
                 fetched = 0
                 for url in urls:
                     article = self.fetchArticle(url)

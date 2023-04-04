@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 from matplotlib import pyplot
-import pyTextMiner as ptm
+import treform as ptm
 
 #model Google News, run once to download pre-trained vectors
 #!wget https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz

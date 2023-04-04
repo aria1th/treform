@@ -35,12 +35,14 @@ class BaseWeighting:
             document = {}
             if len(label_list) > 0:
                 document["label"] = label_list[i]
+                label = label_list[i]
             else:
                 document["label"] = label
             if label not in doccount:
                 doccount[label] = 0
             doccount[label] += 1
-            docname = label + str(doccount[label])
+            docname = document["label"] + str(doccount[label])  # label + str(doccount[label])
+            #docname = label + str(doccount[label])
             document["document"] = docname
 
             document["split_sentence"] = _doc

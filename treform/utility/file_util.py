@@ -3,8 +3,6 @@ import gzip
 import os.path
 import subprocess
 
-import chardet
-
 from treform.utility.base_util import is_windows_os
 from treform.utility.num_util import NumUtil
 
@@ -31,7 +29,8 @@ class FileUtil(object):
     @staticmethod
     def encoding(file_path):
         try:
-            return chardet.detect(open(file_path).read())['encoding']
+            #return chardet.detect(open(file_path).read())['encoding']
+            return None
         except:
             return None
 

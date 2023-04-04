@@ -1,4 +1,4 @@
-import pyLDAvis.gensim
+import pyLDAvis
 import pickle
 import gensim
 

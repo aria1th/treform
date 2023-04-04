@@ -85,7 +85,7 @@ class DocumentClustering:
 
             #to make dense matrix
             if self.doc2vec_matrix == False:
-                self.X = self.X.toarray()
+                self.X = self.X.tolist()
             self.clustering.fit(self.X)
             print("done in %0.3fs" % (time() - t0))
             print()
@@ -219,7 +219,10 @@ class DocumentClustering:
         if self.name == 'spectral_cocluster':
             pca_t = None
             if self.doc2vec_matrix == False:
-                pca_t = PCA().fit_transform(self.X.toarray())
+                if type(self.X) is np.ndarray:
+                    pca_t = PCA().fit_transform(self.X.tolist())
+                else:
+                    pca_t = PCA().fit_transform(self.X.toarray())
             else:
                 pca_t = PCA().fit_transform(self.X)
             #pca_t = PCA().fit_transform(self.X)

@@ -16,7 +16,7 @@ def snorm(string):
 
 def open_file(filename, mode):
     try:
-        fid = open(filename, mode)
+        fid = open(filename, mode, encoding="utf-8")
     except:
         sys.stderr.write("open_file(), file open error : %s\n" % (filename))
         exit(1)

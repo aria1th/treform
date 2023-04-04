@@ -1,4 +1,9 @@
 import csv
+try:
+    from tqdm import tqdm
+except (ModuleNotFoundError, ImportError):
+    def tqdm(x):
+        return x
 
 from treform.splitter import *
 from treform.tokenizer import *
@@ -20,7 +25,8 @@ from treform.utility import *
 from treform.abbreviations import *
 from treform.synonym import *
 from treform.syntactic_parser import *
-#from treform.spelling import *
+from treform.spelling import *
+from treform.weighting import *
 
 from os import listdir
 from .version import __version__
@@ -31,6 +37,7 @@ class Pipeline:
     def __init__(self, *pipelines):
         self.pipeline = pipelines
         self.collapse = self.checkType(pipelines)
+        self.progressBar : bool = False  # show progress bar, requires tqdm.
         pass
 
     def checkType(self, pipeline):
@@ -60,7 +67,7 @@ class Pipeline:
                 return {k:apply(p, a[1:], v) for k, v in inst}
 
         results = []
-        for d in corpus:
+        for d in (tqdm(corpus) if self.progressBar else corpus):
             inst = d
             for p, c in zip(self.pipeline, self.collapse):
                 inst = apply(p, c, inst)
@@ -94,8 +101,24 @@ class Corpus:
         return self.docs.__len__()
 
 class CorpusFromFile(Corpus):
-    def __init__(self, file):
-        self.docs = open(file, encoding='utf-8').readlines()
+    def __init__(self, file, encoding='utf-8'):
+        import re
+        emoji_pattern = re.compile("["
+                                   u"\U00010000-\U0010FFFF"
+                                   "]+", flags=re.UNICODE)
+        array = []
+        line_number = 0
+        with open(file, encoding=encoding) as original:
+            for line in original.readlines():
+                line_number += 1
+                try:
+                    after = emoji_pattern.sub(r'', line)
+                    array.append(after)
+                except IndexError:
+                    print('line number', line_number, 'txt 파일에서 확인요망')
+                    array.append()
+        self.docs = array
+
 
 class CorpusFromEojiFile(Corpus):
     def __init__(self, file):

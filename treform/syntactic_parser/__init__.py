@@ -12,7 +12,7 @@ class BeneparSyntacticParser(BaseSyntacticParser):
             self.parser = benepar.Parser("benepar_ko2")
         except LookupError:
             benepar.download('benepar_ko2')
-
+            print('error')
         if self.parser is None:
             self.parser = benepar.Parser("benepar_ko2")
 

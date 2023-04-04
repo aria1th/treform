@@ -199,11 +199,11 @@ class MachineLearningSentimentAnalyzer:
 
     def make_baseline_feature_vectors(self, combined_vectors, labels):
         baseline_vectorizer = CountVectorizer()
-        features = baseline_vectorizer.fit_transform(combined_vectors).toarray()
+        features = baseline_vectorizer.fit_transform(combined_vectors)
 
         self.saveVectorizer(baseline_vectorizer)
 
-        print('feature size ' + str(len(features)) + " : " + str(len(labels)))
+        #print('feature size ' + str(len(features)) + " : " + str(len(labels)))
 
         X_train, X_test, y_train, y_test = train_test_split(features, labels,
                                                             test_size=0.33, random_state=0)
@@ -212,10 +212,10 @@ class MachineLearningSentimentAnalyzer:
 
     def make_tfidf_feature_vectors(self, combined_vectors, labels):
         tfidf_vectorizer = TfidfVectorizer()
-        features = tfidf_vectorizer.fit_transform(combined_vectors).toarray()
+        features = tfidf_vectorizer.fit_transform(combined_vectors)
         self.saveVectorizer(tfidf_vectorizer)
 
-        print('feature size ' + str(len(features)) + " : " + str(len(labels)))
+        #print('feature size ' + " : " + str(len(labels)))
 
         X_train, X_test, y_train, y_test = train_test_split(features, labels,
                                                             test_size=0.33, random_state=0)
