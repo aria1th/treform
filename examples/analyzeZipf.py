@@ -7,14 +7,6 @@ import treform as ptm
 from tqdm import tqdm
 import matplotlib.ticker as mtick
 
-f = [f.name for f in fm.fontManager.ttflist]
-plt.rc('font', family='Malgun Gothic')
-# get directory of treform library
-directory = ptm.__path__[0]
-# get relative directory of stopwords
-stopwords = os.path.join(directory, 'stopwords', 'stopwordsKor.txt')
-
-
 # Define functions here
 # function that pickles the result with given name
 def pickle_result(result, name=None):
@@ -92,81 +84,6 @@ def process_ngram_corpus(corpus, ngram=2):
     predefined_dict_name = {2: 'bigram_result', 3: 'trigram_result'}
     pickle_result(ngram_result, predefined_dict_name[ngram])
     return ngram_result
-
-
-# read file from news_articles_201701_201812.csv
-# prune lines to 5000 lines
-# skip if you already have pruned file
-if not os.path.exists('news_articles_201701_201812_pruned.csv'):
-    line_prune = 5000
-    # check if file exists
-    if not os.path.exists('news_articles_201701_201812.csv'):
-        raise FileNotFoundError('news_articles_201701_201812.csv does not exist')
-    with open('news_articles_201701_201812.csv', 'r', encoding='utf-8') as f:
-        # read lines
-        lines = f.readlines()
-        # prune lines
-        lines = lines[:line_prune]
-        # write lines to new file
-        with open('news_articles_201701_201812_pruned.csv', 'w', encoding='utf-8') as f:
-            f.writelines(lines)
-
-# create corpus from pruned file
-# we will use 4th column as text
-corpus = ptm.CorpusFromCSVFile('news_articles_201701_201812_pruned.csv', 4)
-
-# check if we have noun_result, verb_result, all_result, 2gram_result, 3gram_result already as pickle file.
-# if we have, we will load it. if not, we will process it.
-# by option, we remove existing pickle to process again.
-remove_pickle = False
-if remove_pickle:
-    for file in ['noun_result', 'verb_result', 'all_result', 'bigram_result', 'trigram_result']:
-        if os.path.exists(file):
-            os.remove(file)
-# check if we have noun_result already as pickle file.
-if os.path.exists('noun_result'):
-    # if we have, we will load it.
-    with open('noun_result', 'rb') as f:
-        noun_result = pickle.load(f)
-else:
-    # if not, we will process it.
-    noun_result = process_noun_corpus(corpus)
-
-# check if we have verb_result already as pickle file.
-if os.path.exists('verb_result'):
-    # if we have, we will load it.
-    with open('verb_result', 'rb') as f:
-        verb_result = pickle.load(f)
-else:
-    # if not, we will process it.
-    verb_result = process_verbs_corpus(corpus)
-
-# check if we have all_result already as pickle file.
-if os.path.exists('all_result'):
-    # if we have, we will load it.
-    with open('all_result', 'rb') as f:
-        all_result = pickle.load(f)
-else:
-    # if not, we will process it.
-    all_result = process_all_corpus(corpus)
-
-# check if we have 2gram_result already as pickle file.
-if os.path.exists('bigram_result'):
-    # if we have, we will load it.
-    with open('bigram_result', 'rb') as f:
-        bigram_result = pickle.load(f)
-else:
-    # if not, we will process it.
-    bigram_result = process_ngram_corpus(corpus, 2)
-
-# check if we have 3gram_result already as pickle file.
-if os.path.exists('trigram_result'):
-    # if we have, we will load it.
-    with open('trigram_result', 'rb') as f:
-        trigram_result = pickle.load(f)
-else:
-    # if not, we will process it.
-    trigram_result = process_ngram_corpus(corpus, 3)
 
 
 # now we have noun_result, verb_result, all_result, 2gram_result, 3gram_result
@@ -279,7 +196,94 @@ def plot_zipf(result_list: list, title: str, prune: int = 5, save: bool = True) 
     return result_zipf
 
 
+
+
 if __name__ == '__main__':
+    f = [f.name for f in fm.fontManager.ttflist]
+    plt.rc('font', family='Malgun Gothic')
+    # get directory of treform library
+    directory = ptm.__path__[0]
+    # get relative directory of stopwords
+    stopwords = os.path.join(directory, 'stopwords', 'stopwordsKor.txt')
+
+
+
+    # read file from news_articles_201701_201812.csv
+    # prune lines to 5000 lines
+    # skip if you already have pruned file
+    if not os.path.exists('news_articles_201701_201812_pruned.csv'):
+        line_prune = 5000
+        # check if file exists
+        if not os.path.exists('news_articles_201701_201812.csv'):
+            raise FileNotFoundError('news_articles_201701_201812.csv does not exist')
+        with open('news_articles_201701_201812.csv', 'r', encoding='utf-8') as f:
+            # read lines
+            lines = f.readlines()
+            # prune lines
+            lines = lines[:line_prune]
+            # write lines to new file
+            with open('news_articles_201701_201812_pruned.csv', 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+
+    # create corpus from pruned file
+    # we will use 4th column as text
+    corpus = ptm.CorpusFromCSVFile('news_articles_201701_201812_pruned.csv', 4)
+
+    # check if we have noun_result, verb_result, all_result, 2gram_result, 3gram_result already as pickle file.
+    # if we have, we will load it. if not, we will process it.
+    # by option, we remove existing pickle to process again.
+    remove_pickle = False
+    if remove_pickle:
+        for file in ['noun_result', 'verb_result', 'all_result', 'bigram_result', 'trigram_result']:
+            if os.path.exists(file):
+                os.remove(file)
+    # check if we have noun_result already as pickle file.
+    if os.path.exists('noun_result'):
+        # if we have, we will load it.
+        with open('noun_result', 'rb') as f:
+            noun_result = pickle.load(f)
+    else:
+        # if not, we will process it.
+        noun_result = process_noun_corpus(corpus)
+
+    # check if we have verb_result already as pickle file.
+    if os.path.exists('verb_result'):
+        # if we have, we will load it.
+        with open('verb_result', 'rb') as f:
+            verb_result = pickle.load(f)
+    else:
+        # if not, we will process it.
+        verb_result = process_verbs_corpus(corpus)
+
+    # check if we have all_result already as pickle file.
+    if os.path.exists('all_result'):
+        # if we have, we will load it.
+        with open('all_result', 'rb') as f:
+            all_result = pickle.load(f)
+    else:
+        # if not, we will process it.
+        all_result = process_all_corpus(corpus)
+
+    # check if we have 2gram_result already as pickle file.
+    if os.path.exists('bigram_result'):
+        # if we have, we will load it.
+        with open('bigram_result', 'rb') as f:
+            bigram_result = pickle.load(f)
+    else:
+        # if not, we will process it.
+        bigram_result = process_ngram_corpus(corpus, 2)
+
+    # check if we have 3gram_result already as pickle file.
+    if os.path.exists('trigram_result'):
+        # if we have, we will load it.
+        with open('trigram_result', 'rb') as f:
+            trigram_result = pickle.load(f)
+    else:
+        # if not, we will process it.
+        trigram_result = process_ngram_corpus(corpus, 3)
+
+
+
     # 1. 품사가 명사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
     noun_zipf = plot_zipf(noun_result, 'Noun Zipf')
     # 2. 품사가 동사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
