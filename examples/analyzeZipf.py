@@ -279,56 +279,57 @@ def plot_zipf(result_list: list, title: str, prune: int = 5, save: bool = True) 
     return result_zipf
 
 
-# 1. 품사가 명사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
-noun_zipf = plot_zipf(noun_result, 'Noun Zipf')
-# 2. 품사가 동사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
-verb_zipf = plot_zipf(verb_result, 'Verb Zipf')
-# 3. 품사 구분없이 모든 단어로 Zipf's 법칙 계산해서 그래프 만들기
-all_zipf = plot_zipf(all_result, 'All Zipf')
-# 4. 품사 구분없이, 불용어 제거 후, bi-gram과 tri-gram만 가지고 Zipf's 법칙 계산해서 그래프 만들기
-bigram_zipf = plot_zipf(bigram_result, 'Bigram Zipf')
-trigram_zipf = plot_zipf(trigram_result, 'Trigram Zipf')
+if __name__ == '__main__':
+    # 1. 품사가 명사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    noun_zipf = plot_zipf(noun_result, 'Noun Zipf')
+    # 2. 품사가 동사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    verb_zipf = plot_zipf(verb_result, 'Verb Zipf')
+    # 3. 품사 구분없이 모든 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    all_zipf = plot_zipf(all_result, 'All Zipf')
+    # 4. 품사 구분없이, 불용어 제거 후, bi-gram과 tri-gram만 가지고 Zipf's 법칙 계산해서 그래프 만들기
+    bigram_zipf = plot_zipf(bigram_result, 'Bigram Zipf')
+    trigram_zipf = plot_zipf(trigram_result, 'Trigram Zipf')
 
-# now lets process with top 100 words, but not save it as png file
-# we overwrite previous result, just with different parameter
-# 1. 품사가 명사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
-noun_zipf = plot_zipf(noun_result, 'Noun Zipf', prune=100, save=False)
-# 2. 품사가 동사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
-verb_zipf = plot_zipf(verb_result, 'Verb Zipf', prune=100, save=False)
-# 3. 품사 구분없이 모든 단어로 Zipf's 법칙 계산해서 그래프 만들기
-all_zipf = plot_zipf(all_result, 'All Zipf', prune=100, save=False)
-# 4. 품사 구분없이, 불용어 제거 후, bi-gram과 tri-gram만 가지고 Zipf's 법칙 계산해서 그래프 만들기
-bigram_zipf = plot_zipf(bigram_result, 'Bigram Zipf', prune=100, save=False)
-trigram_zipf = plot_zipf(trigram_result, 'Trigram Zipf', prune=100, save=False)
+    # now lets process with top 100 words, but not save it as png file
+    # we overwrite previous result, just with different parameter
+    # 1. 품사가 명사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    noun_zipf = plot_zipf(noun_result, 'Noun Zipf', prune=100, save=False)
+    # 2. 품사가 동사인 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    verb_zipf = plot_zipf(verb_result, 'Verb Zipf', prune=100, save=False)
+    # 3. 품사 구분없이 모든 단어로 Zipf's 법칙 계산해서 그래프 만들기
+    all_zipf = plot_zipf(all_result, 'All Zipf', prune=100, save=False)
+    # 4. 품사 구분없이, 불용어 제거 후, bi-gram과 tri-gram만 가지고 Zipf's 법칙 계산해서 그래프 만들기
+    bigram_zipf = plot_zipf(bigram_result, 'Bigram Zipf', prune=100, save=False)
+    trigram_zipf = plot_zipf(trigram_result, 'Trigram Zipf', prune=100, save=False)
 
-# now we have list of top <prune> words and its frequency. Lets plot as line plot in single graph, to see how it looks
-# lets create figure then plot each line
-plt.figure(figsize=(20, 10))
-# for each result, instead of using word as x axis, we will use index
-# lets create index for each word
-# create empty list
-x = []
-# iterate over each result
-for i, result in enumerate([noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]):
-    # append index to x
-    x.append([i for i in range(len(result))])
-# get y axis
-y = [list(zip(*result))[1] for result in [noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]]
-# plot each line using loop
-for i, result in enumerate([noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]):
-    # plot line. for label, use 'noun', 'verb', 'all', 'bigram', 'trigram' respectively instead of words
-    plt.plot(x[i], y[i], label=['noun', 'verb', 'all', 'bigram', 'trigram'][i])
+    # now we have list of top <prune> words and its frequency. Lets plot as line plot in single graph, to see how it looks
+    # lets create figure then plot each line
+    plt.figure(figsize=(20, 10))
+    # for each result, instead of using word as x axis, we will use index
+    # lets create index for each word
+    # create empty list
+    x = []
+    # iterate over each result
+    for i, result in enumerate([noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]):
+        # append index to x
+        x.append([i for i in range(len(result))])
+    # get y axis
+    y = [list(zip(*result))[1] for result in [noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]]
+    # plot each line using loop
+    for i, result in enumerate([noun_zipf, verb_zipf, all_zipf, bigram_zipf, trigram_zipf]):
+        # plot line. for label, use 'noun', 'verb', 'all', 'bigram', 'trigram' respectively instead of words
+        plt.plot(x[i], y[i], label=['noun', 'verb', 'all', 'bigram', 'trigram'][i])
 
-# set x and y axis label
-# for xlabel, show index instead of word
-plt.xlabel('Index')
-plt.ylabel('Frequency')
-# use percentage for y
+    # set x and y axis label
+    # for xlabel, show index instead of word
+    plt.xlabel('Index')
+    plt.ylabel('Frequency')
+    # use percentage for y
 
-plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-# set title
-plt.title('Zipf\'s Law')
-# set legend
-plt.legend()
-# save as png file
-plt.savefig('Zipf\'s Law.png')
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    # set title
+    plt.title('Zipf\'s Law')
+    # set legend
+    plt.legend()
+    # save as png file
+    plt.savefig('Zipf\'s Law.png')
