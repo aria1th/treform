@@ -13,7 +13,7 @@ def download_relative_path(target_relative_path:str):
     :return: None
     The process may install pygithub if it is not installed
     """
-    if os.path.exists(os.path.join(BASE_PATH, 'sample_data')):
+    if 'sample_data' in target_relative_path and os.path.exists(os.path.join(BASE_PATH, 'sample_data')):
         if not FORCE_REFRESH:
             print('Sample data folder already exists, set flag force_refresh = True to re-download')
             return
