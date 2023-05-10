@@ -1,0 +1,13 @@
+on:
+    push:
+      # ignore *.md *.yml file changes
+        branches: [ main ]
+        paths-ignore:
+          - '**.md'
+          - '**.yml'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+          - uses: ResearchSoftwareActions/EnsureCleanNotebooksAction@1.1
