@@ -19,7 +19,11 @@ from numpy.linalg import svd
 import operator
 
 class DocumentClustering:
-    def __init__(self, k=5):
+    def __init__(self, k:int=5):
+        """
+        :param k: number of clusters
+        """
+        assert type(k) == int, 'k must be an integer'
         self.name = 'k-means'
         self.k = k
         self.X = None
@@ -28,7 +32,13 @@ class DocumentClustering:
         self.dataset_size=0
         self.doc2vec_matrix = False
 
-    def make_matrix(self, documents=None, n_components=-1, doc2vec_matrix=None):
+    def make_matrix(self, documents:list[str]|iter[str]|np.ndarray=None, n_components:int=-1, doc2vec_matrix:None|np.ndarray=None):
+        """
+        :param documents: Iterable of documents(str)
+        :param n_components: number of components for LSA, if -1 then skip LSA
+        :param doc2vec_matrix: AnyOf[None, np.ndarray]
+        :return: None
+        """
         if isinstance(doc2vec_matrix, np.ndarray) == False:
             self.vectorizer = TfidfVectorizer()
             # self.vectorizer = CountVectorizer()
@@ -40,6 +50,7 @@ class DocumentClustering:
             self.doc2vec_matrix = True
 
         if (n_components != -1):
+            assert type(n_components) == int, 'n_components must be an integer'
             if n_components > len(self.get_feature_names()):
                 n_components = len(self.get_feature_names())
             print('n_components ' + str(n_components))
@@ -62,7 +73,11 @@ class DocumentClustering:
 
             print()
 
-    def cluster(self, cluster_name):
+    def cluster(self, cluster_name: str) -> None:
+        """
+        :param cluster_name(str): k-means, agglo, spectral_cocluster
+        :return: None, use print_results to print the clustering result
+        """
         self.name = cluster_name.strip()
         print('cluster_name ' + self.name)
         if self.name == 'k-means':
@@ -97,8 +112,13 @@ class DocumentClustering:
             self.clustering.fit(self.X)
             print("done in %0.3fs" % (time() - t0))
             print()
+        else:
+            raise KeyError('Invalid clustering name :' + cluster_name + ' valid names are k-means, agglo, spectral_cocluster')
 
     def print_results(self):
+        """
+        :return: None, print the clustering result
+        """
         # print the clustering result
         print(self.name)
         if self.name == 'k-means':
@@ -172,7 +192,8 @@ class DocumentClustering:
                 print("categories   : {}".format(cat_string))
                 print("words        : {}\n".format(', '.join(important_words)))
 
-    def bicluster_ncut(self, i):
+    def bicluster_ncut(self, i: int):
+
         rows, cols = self.clustering.get_indices(i)
         if not (np.any(rows) and np.any(cols)):
             import sys
@@ -189,10 +210,13 @@ class DocumentClustering:
 
     def most_common(self, d):
         """Items of a defaultdict(int) with the highest values.
+        parameter d: dict
+        return: list of tuples sorted by value in reverse order
         """
         return sorted(d.items(), key=operator.itemgetter(1), reverse=True)
     
     def get_feature_names(self):
+        """Wrapper for self.vectorizer.get_feature_names() or its updated version"""
         if self.vectorizer is not None and hasattr(self.vectorizer, 'get_feature_names'):
             return self.vectorizer.get_feature_names()
         return self.vectorizer.get_feature_names_out()
@@ -219,6 +243,9 @@ class DocumentClustering:
         return out
 
     def visualize(self):
+        """
+        Visualize the clustering results
+        """
         # The output is a one-dimensional array of N documents corresponding to the clusters
         # assigned to our N data points.
         if self.name == 'spectral_cocluster':
