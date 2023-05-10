@@ -191,6 +191,11 @@ class DocumentClustering:
         """Items of a defaultdict(int) with the highest values.
         """
         return sorted(d.items(), key=operator.itemgetter(1), reverse=True)
+    
+    def get_feature_names(self):
+        if self.vectorizer is not None and hasattr(self.vectorizer, 'get_feature_names'):
+            return self.vectorizer.get_feature_names()
+        return self.vectorizer.get_feature_names_out()
 
     def get_cluster_top_keywords(self, clusters, keywords_per_cluster=10):
         """Shows the top k words for each cluster
