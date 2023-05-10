@@ -40,8 +40,8 @@ class DocumentClustering:
             self.doc2vec_matrix = True
 
         if (n_components != -1):
-            if n_components > len(self.vectorizer.get_feature_names()):
-                n_components = len(self.vectorizer.get_feature_names())
+            if n_components > len(self.get_feature_names()):
+                n_components = len(self.get_feature_names())
             print('n_components ' + str(n_components))
             # Vectorizer results are normalized, which makes KMeans behave as
             # spherical k-means for better results. Since LSA/SVD results are
@@ -111,7 +111,7 @@ class DocumentClustering:
                 clusters[cluster_label].append(document_id)
                 print(str(cluster_label) + " -- " + str(document_id))
             order_centroids = self.clustering.cluster_centers_.argsort()[:, ::-1]
-            terms = self.vectorizer.get_feature_names()
+            terms = self.get_feature_names()
             for i in range(self.k):
                 print("Cluster %d:" % i, end='')
                 for ind in order_centroids[i, :10]:
@@ -142,7 +142,7 @@ class DocumentClustering:
             bicluster_ncuts = list(self.bicluster_ncut(i) for i in range(self.k))
             best_idx = np.argsort(bicluster_ncuts)[:target_number]
 
-            feature_names = self.vectorizer.get_feature_names()
+            feature_names = self.get_feature_names()
             print()
             print("Best biclusters:")
             print("----------------")
@@ -204,7 +204,7 @@ class DocumentClustering:
         Returns:
             dict of lists -- Returns a dict of {cluster_id: ['top', 'k', 'words', 'for', 'cluster']}
         """
-        terms = self.vectorizer.get_feature_names()
+        terms = self.get_feature_names()
         out = {}
         docs_for_cluster = {}
         # self.clusters = 10 clusters,containing the index of the document_vectors document in that cluster, ex len(self.clusters[6]) == 508
