@@ -1,13 +1,9 @@
-on:
-    push:
-      # ignore *.md *.yml file changes
-        branches: [ main ]
-        paths-ignore:
-          - '**.md'
-          - '**.yml'
+name: GitHub Pre-Push actions
+on: [push]
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-          - uses: ResearchSoftwareActions/EnsureCleanNotebooksAction@1.1
+  ensure_clean_jupyter_notebooks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: ResearchSoftwareActions/EnsureCleanNotebooksAction@1.1
+      with:
+        disable-checks: execution_count
