@@ -37,10 +37,9 @@ def download_relative_path(target_relative_path:str):
     import git
     try:
         print(f'Created temporary path {os.path.abspath(tmp_path)}')
-        repo = git.Repo.clone_from(base_repo, tmp_path)
+        git.Repo.clone_from(base_repo, tmp_path)
         shutil.copytree(os.path.abspath(tmp_path + target_relative_path), target_folder)
     finally:
-        del repo
         shutil.rmtree(tmp_path, ignore_errors=True)
         print(f'Removed temporary path {os.path.abspath(tmp_path)}')
 
