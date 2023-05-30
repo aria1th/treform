@@ -93,7 +93,10 @@ class PathManager:
 
     def __str__(self) -> str:
         return self.path
-
+    
+    @staticmethod
+    def get(path:str):
+        return str(PathManager(path))
 
 if __name__ == '__main__':
     if os.path.exists(os.path.join(BASE_PATH, 'sample_data')) and not FORCE_REFRESH:
