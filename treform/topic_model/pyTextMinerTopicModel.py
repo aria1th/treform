@@ -31,7 +31,7 @@ def read_dmr(dmr_path):
 def visualize_dmr(dmr_path, topic_num: int = -1, save_path: str = None):
     # if type is DataFrame, then skip
     if type(dmr_path) == pd.DataFrame:
-        topics_features = dmr_path
+        topics_features = dmr_path.copy()
     else:
         topics_features = read_dmr(dmr_path)
     df1_transposed = topics_features.T.rename_axis('Date').reset_index()
@@ -697,11 +697,12 @@ class pyTextMinerTopicModel:
 
         return mdl
 
-    def dmr_model(self, text_data, pair_map, save_path, topic_number=20, min_cf=3, rm_top=5, iteration=1500):
+    def dmr_model(self, text_data, pair_map, save_path, topic_number=20, min_cf=3, rm_top=5, iteration=1500, verbose=True):
         mdl = tp.DMRModel(tw=tp.TermWeight.ONE, min_cf=min_cf, rm_top=rm_top, k=topic_number)
 
         for index, doc in enumerate(text_data):
-            print(str(index) + " : " + str(doc))
+            if verbose:
+                print(str(index) + " : " + str(doc))
             if index in pair_map:
                 year=pair_map[index]
                 mdl.add_doc(doc,metadata=year)
@@ -713,9 +714,11 @@ class pyTextMinerTopicModel:
         print('Num docs:', len(mdl.docs), ', Vocab size:', mdl.num_vocabs, ', Num words:', mdl.num_words)
         print('Removed top words:', mdl.removed_top_words)
         print('Training...', file=sys.stderr, flush=True)
-        for i in range(0, iteration, 10):
+        iterator = range(0, iteration, 10) if verbose else tqdm(range(0, iteration, 10))
+        for i in iterator:
             mdl.train(10)
-            print('Iteration: {}\tLog-likelihood: {}'.format(i, mdl.ll_per_word))
+            if verbose:
+                print('Iteration: {}\tLog-likelihood: {}'.format(i, mdl.ll_per_word))
 
         print(mdl.perplexity)
 
@@ -774,13 +777,12 @@ class pyTextMinerTopicModel:
         col_feaures = sorted(col_features, reverse=False)
         #col_features.insert(0,'Topic ID')
         topics_features.columns = col_features
-
         topics_features.to_csv('dmr_topic_year.csv', sep=',', encoding='utf-8')
         print(topics_features.head(20))
         for topic_idx in range(topic_number + 1):
             if topic_idx == topic_number:
                 topic_idx = -1
-            visualize_dmr(f'dmr_topic_year.csv', topic_idx, f'DMR Topic Model Results _{(topic_idx if topic_idx != -1 else "all")}.png')
+            visualize_dmr(topics_features, topic_idx, f'DMR Topic Model Results _{(topic_idx if topic_idx != -1 else "all")}.png')
         # calculate topic distribution for each metadata using softmax
         probs = np.exp(mdl.lambdas - mdl.lambdas.max(axis=0))
         probs /= probs.sum(axis=0)
