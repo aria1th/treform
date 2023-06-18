@@ -16,6 +16,56 @@ import platform
 import matplotlib.font_manager as fm
 import math
 from pyvis.network import Network
+from tqdm import tqdm
+
+
+
+from pandas import read_csv
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def read_dmr(dmr_path):
+    dmr = read_csv(dmr_path, index_col=0)
+    return dmr
+
+def visualize_dmr(dmr_path, topic_num: int = -1, save_path: str = None):
+    # if type is DataFrame, then skip
+    if type(dmr_path) == pd.DataFrame:
+        topics_features = dmr_path
+    else:
+        topics_features = read_dmr(dmr_path)
+    df1_transposed = topics_features.T.rename_axis('Date').reset_index()
+    # sort by date
+    df1_transposed_sorted = df1_transposed.sort_values(by='Date')
+    df1_transposed_rel = df1_transposed_sorted.melt('Date', var_name='Topic', value_name='Importance Score')
+
+    g = sns.relplot(x="Date", y="Importance Score", hue='Topic', dashes=False, markers=True,  data=df1_transposed_rel, kind='line')
+    # limit xticks count to 10
+    year_amount = 10
+    assert year_amount > 0, 'year_amount should be positive'
+    xticks = g.ax.get_xticks()
+    assert len(xticks) > year_amount, f'year_amount should be less than xticks count, {len(xticks)} '
+    g.ax.set_xticks(xticks[::int(len(xticks)/year_amount)])
+    # reverse x axis
+    #g.ax.invert_xaxis()
+    g.fig.autofmt_xdate()
+    g.fig.suptitle('DMR Topic Model Results')
+    # select topic
+    if topic_num != -1:
+        g.fig.suptitle(f'Topic {topic_num} in DMR Topic Model Results')
+        g.ax.set_title(f'Topic {topic_num}')
+        legend = g.ax.get_legend()
+        if legend is not None:
+            legend.set_visible(False)
+        # exclude other topics
+        g:sns.FacetGrid
+        for idx, line in enumerate(g.ax.lines):
+            if idx != topic_num:
+                line.set_visible(False)
+    if save_path is not None:
+        g.savefig(save_path)
+    plt.show()
+    return g
 
 class pyTextMinerTopicModel:
     def __init__(self):
@@ -29,7 +79,7 @@ class pyTextMinerTopicModel:
         # we need to make column consistent
         matrix = []
         docs = []
-        for d in mdl.docs:
+        for d in tqdm(mdl.docs):
             doc = ''
             for word in d.get_words():
                 doc += word[0] + " "
@@ -173,6 +223,8 @@ class pyTextMinerTopicModel:
             ax.set(frame_on=True)
             fig.add_subplot(ax, frameon=True)
             topic_words={}
+            if i >= topic_number:
+                break
             for word, prob in mdl.get_topic_words(i):
                 topic_words[word]=prob
 
@@ -650,8 +702,11 @@ class pyTextMinerTopicModel:
 
         for index, doc in enumerate(text_data):
             print(str(index) + " : " + str(doc))
-            year=pair_map[index]
-            mdl.add_doc(doc,metadata=year)
+            if index in pair_map:
+                year=pair_map[index]
+                mdl.add_doc(doc,metadata=year)
+            else:
+                print(f"Year {index} not found in pair map")
 
         mdl.burn_in = 100
         mdl.train(0)
@@ -722,26 +777,10 @@ class pyTextMinerTopicModel:
 
         topics_features.to_csv('dmr_topic_year.csv', sep=',', encoding='utf-8')
         print(topics_features.head(20))
-
-        df1_transposed = topics_features.T.rename_axis('Date').reset_index()
-        #labels = []
-        #for i in range(0,topic_number-1):
-        #    labels.append('Topic_'+str(i))
-        #df1_transposed.columns=labels
-
-        import seaborn as sns
-        import matplotlib.colors as mcolors
-
-        print(df1_transposed.head(20))
-        df1_transposed = df1_transposed.melt('Date', var_name='Topic', value_name='Importance Score')
-        g = sns.relplot(x="Date", y="Importance Score", hue='Topic', dashes=False, markers=True,  data=df1_transposed, kind='line')
-
-        output='dmr_topic.png'
-        g.fig.suptitle('DMR Topic Model Results')
-        g.savefig(output, format='png', dpi=500)
-        # Show the plot
-        plt.show()
-
+        for topic_idx in range(topic_number + 1):
+            if topic_idx == topic_number:
+                topic_idx = -1
+            visualize_dmr(f'dmr_topic_year.csv', topic_idx, f'DMR Topic Model Results _{(topic_idx if topic_idx != -1 else "all")}.png')
         # calculate topic distribution for each metadata using softmax
         probs = np.exp(mdl.lambdas - mdl.lambdas.max(axis=0))
         probs /= probs.sum(axis=0)
